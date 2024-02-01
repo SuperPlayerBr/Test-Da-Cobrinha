@@ -24,20 +24,43 @@
 </head>
 <body>
     <div id="game-board"></div>
+    <button id="start-button">Start</button>
+    <button id="restart-button" style="display: none;">Restart</button>
+    <p id="game-over" style="display: none;">Game Over</p>
     <script>
         var snake = [{ top: 200, left: 200 }];
         var apple = null;
         var direction = 'Right';
+        var nextDirection = 'Right';
         var gameBoard = document.getElementById('game-board');
+        var startButton = document.getElementById('start-button');
+        var restartButton = document.getElementById('restart-button');
+        var gameOverText = document.getElementById('game-over');
+        var gameInterval = null;
 
         function randomApple() {
             return { top: Math.floor(Math.random() * 20) * 20, left: Math.floor(Math.random() * 20) * 20 };
         }
 
-        apple = randomApple();
+        function startGame() {
+            startButton.style.display = 'none';
+            apple = randomApple();
+            gameInterval = setInterval(gameLoop, 200);
+        }
 
-        setInterval(function() {
+        function restartGame() {
+            snake = [{ top: 200, left: 200 }];
+            direction = 'Right';
+            nextDirection = 'Right';
+            apple = null;
+            gameOverText.style.display = 'none';
+            restartButton.style.display = 'none';
+            startButton.style.display = '';
+        }
+
+        function gameLoop() {
             var head = Object.assign({}, snake[0]); // Copia a cabeça
+            direction = nextDirection;
             switch(direction) {
                 case 'Left':
                     head.left -= 20;
@@ -51,6 +74,14 @@
                 case 'Down':
                     head.top += 20;
                     break;
+            }
+
+            // Check for self-collision or wall collision
+            if (head.top < 0 || head.top === 400 || head.left < 0 || head.left === 400 || snake.some(dot => dot.top === head.top && dot.left === head.left)) {
+                clearInterval(gameInterval);
+                gameOverText.style.display = '';
+                restartButton.style.display = '';
+                return;
             }
 
             snake.unshift(head);
@@ -76,24 +107,27 @@
             appleElement.style.top = `${apple.top}px`;
             appleElement.style.left = `${apple.left}px`;
             gameBoard.appendChild(appleElement);
-}, 200);
+        }
 
         window.onkeydown = function(e) {
             switch(e.key) {
                 case 'w':
-                    direction = 'Up';
+                    if (direction !== 'Down') nextDirection = 'Up';
                     break;
                 case 'a':
-                    direction = 'Left';
+                    if (direction !== 'Right') nextDirection = 'Left';
                     break;
                 case 's':
-                    direction = 'Down';
+                    if (direction !== 'Up') nextDirection = 'Down';
                     break;
                 case 'd':
-                    direction = 'Right';
+                    if (direction !== 'Left') nextDirection = 'Right';
                     break;
             }
         };
+
+        startButton.onclick = startGame;
+        restartButton.onclick = restartGame;
     </script>
 </body>
 </html>
