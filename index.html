@@ -27,6 +27,7 @@
     <button id="start-button">Start</button>
     <button id="restart-button" style="display: none;">Restart</button>
     <p id="game-over" style="display: none;">Game Over</p>
+    <p id="apple-count">Maçãs: 0</p>
     <script>
         var snake = [{ top: 200, left: 200 }];
         var apple = null;
@@ -36,6 +37,8 @@
         var startButton = document.getElementById('start-button');
         var restartButton = document.getElementById('restart-button');
         var gameOverText = document.getElementById('game-over');
+        var appleCountText = document.getElementById('apple-count');
+        var appleCount = 0;
         var gameInterval = null;
 
         function randomApple() {
@@ -53,6 +56,8 @@
             direction = 'Right';
             nextDirection = 'Right';
             apple = null;
+            appleCount = 0;
+            appleCountText.innerText = 'Maçãs: ' + appleCount;
             gameOverText.style.display = 'none';
             restartButton.style.display = 'none';
             startButton.style.display = '';
@@ -88,6 +93,8 @@
 
             if (snake[0].top === apple.top && snake[0].left === apple.left) {
                 apple = randomApple();
+                appleCount++;
+                appleCountText.innerText = 'Maçãs: ' + appleCount;
             } else {
                 snake.pop();
             }
