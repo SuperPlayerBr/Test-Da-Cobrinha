@@ -119,25 +119,27 @@
     appleElement.style.left = `${apple.left}px`;
     gameBoard.appendChild(appleElement);
 if (aiActive) {
-        var head = Object.assign({}, snake[0]);
-        var safeDirections = ['Left', 'Up', 'Right', 'Down'].filter(dir => {
-            var newHead = Object.assign({}, head);
-            switch(dir) {
-                case 'Left':
-                    newHead.left -= 20;
-                    break;
-                case 'Up':
-                    newHead.top -= 20;
-                    break;
-                case 'Right':
-                    newHead.left += 20;
-                    break;
-                case 'Down':
-                    newHead.top += 20;
-                    break;
-            }
-            return !(newHead.top < 0 || newHead.top === 400 || newHead.left < 0 || newHead.left === 400 || snake.some(dot => dot.top === newHead.top && dot.left === newHead.left));
-        });
+    var head = Object.assign({}, snake[0]);
+    var left = { top: head.top, left: head.left - 20 };
+    var up = { top: head.top - 20, left: head.left };
+    var right = { top: head.top, left: head.left + 20 };
+    var down = { top: head.top + 20, left: head.left };
+
+    if (direction === 'Right' && !isCollision(down)) {
+        nextDirection = 'Down';
+    } else if (direction === 'Down' && !isCollision(left)) {
+        nextDirection = 'Left';
+    } else if (direction === 'Left' && !isCollision(up)) {
+        nextDirection = 'Up';
+    } else if (direction === 'Up' && !isCollision(right)) {
+        nextDirection = 'Right';
+    }
+}
+
+function isCollision(position) {
+    return position.top < 0 || position.top === 400 || position.left < 0 || position.left === 400 || snake.some(dot => dot.top === position.top && dot.left === position.left);
+}
+
         if (safeDirections.length === 0) {
             clearInterval(gameInterval);
             gameOverText.style.display = '';
