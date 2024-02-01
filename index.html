@@ -25,21 +25,48 @@
 <body>
     <div id="game-board"></div>
     <script>
-        var dot = { top: 200, left: 200 };
+        var snake = [{ top: 200, left: 200 }];
         var apple = { top: 50, left: 50 };
+        var direction = 'Right';
         var gameBoard = document.getElementById('game-board');
 
         setInterval(function() {
-            var dotElement = document.createElement('div');
-            dotElement.classList.add('dot');
-            dotElement.style.top = `${dot.top}px`;
-            dotElement.style.left = `${dot.left}px`;
-            gameBoard.appendChild(dotElement);
+            var head = Object.assign({}, snake[0]); // Copia a cabeça
+            switch(direction) {
+                case 'Left':
+                    head.left -= 20;
+                    break;
+                case 'Up':
+                    head.top -= 20;
+                    break;
+                case 'Right':
+                    head.left += 20;
+                    break;
+                case 'Down':
+                    head.top += 20;
+                    break;
+            }
 
-            if (dot.top === apple.top && dot.left === apple.left) {
+            snake.unshift(head);
+
+            if (snake[0].top === apple.top && snake[0].left === apple.left) {
                 apple.top = Math.floor(Math.random() * 20) * 20;
                 apple.left = Math.floor(Math.random() * 20) * 20;
+            } else {
+                snake.pop();
             }
+
+            while (gameBoard.firstChild) {
+                gameBoard.removeChild(gameBoard.firstChild);
+            }
+
+            snake.forEach(function(dot) {
+                var dotElement = document.createElement('div');
+                dotElement.classList.add('dot');
+                dotElement.style.top = `${dot.top}px`;
+                dotElement.style.left = `${dot.left}px`;
+                gameBoard.appendChild(dotElement);
+            });
 
             var appleElement = document.createElement('div');
             appleElement.classList.add('apple');
@@ -47,6 +74,23 @@
             appleElement.style.left = `${apple.left}px`;
             gameBoard.appendChild(appleElement);
         }, 200);
+
+        window.onkeydown = function(e) {
+            switch(e.key) {
+                case 'w':
+                    direction = 'Up';
+                    break;
+                case 'a':
+                    direction = 'Left';
+                    break;
+                case 's':
+                    direction = 'Down';
+                    break;
+                case 'd':
+                    direction = 'Right';
+                    break;
+            }
+        };
     </script>
 </body>
 </html>
