@@ -1,101 +1,39 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <style>
-        #game-board {
-            position: relative;
-            height: 400px;
-            width: 400px;
-            border: 1px solid black;
-        }
-        .dot {
-            position: absolute;
-            height: 20px;
-            width: 20px;
-            background: #000;
-        }
-        .apple {
-            position: absolute;
-            height: 20px;
-            width: 20px;
-            background: #f00;
-        }
-    </style>
-</head>
-<body>
-    <div id="game-board"></div>
-    <script>
-        var snake = [{ top: 200, left: 200 }];
-        var apple = null;
-        var direction = 'Right';
-        var gameBoard = document.getElementById('game-board');
+    <head>
+        <title>Meu primeiro jogo 3D</title>
+        <style>
+            body { margin: 0; }
+            canvas { width: 100%; height: 100% }
+        </style>
+    </head>
+    <body>
+        <script src="https://threejs.org/build/three.js"></script>
+        <script>
+            var scene = new THREE.Scene();
+            var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 
-        function randomApple() {
-            return { top: Math.floor(Math.random() * 20) * 20, left: Math.floor(Math.random() * 20) * 20 };
-        }
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
 
-        apple = randomApple();
+            var geometry = new THREE.BoxGeometry(1, 1, 1);
+            var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+            var cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
 
-        setInterval(function() {
-            var head = Object.assign({}, snake[0]); // Copia a cabeça
-            switch(direction) {
-                case 'Left':
-                    head.left -= 20;
-                    break;
-                case 'Up':
-                    head.top -= 20;
-                    break;
-                case 'Right':
-                    head.left += 20;
-                    break;
-                case 'Down':
-                    head.top += 20;
-                    break;
-            }
+            camera.position.z = 5;
 
-            snake.unshift(head);
+            var animate = function () {
+                requestAnimationFrame(animate);
 
-            if (snake[0].top === apple.top && snake[0].left === apple.left) {
-                apple = randomApple();
-            } else {
-                snake.pop();
-            }
+                cube.rotation.x += 0.01;
+                cube.rotation.y += 0.01;
 
-            while (gameBoard.firstChild) {
-                gameBoard.removeChild(gameBoard.firstChild);
-            }
+                renderer.render(scene, camera);
+            };
 
-            snake.forEach(function(dot) {
-                var dotElement = document.createElement('div');
-                dotElement.classList.add('dot');
-                dotElement.style.top = `${dot.top}px`;
-                dotElement.style.left = `${dot.left}px`;
-                gameBoard.appendChild(dotElement);
-            });
-
-            var appleElement = document.createElement('div');
-            appleElement.classList.add('apple');
-            appleElement.style.top = `${apple.top}px`;
-            appleElement.style.left = `${apple.left}px`;
-            gameBoard.appendChild(appleElement);
-        }, 200);
-
-        window.onkeydown = function(e) {
-            switch(e.key) {
-                case 'w':
-                    direction = 'Up';
-                    break;
-                case 'a':
-                    direction = 'Left';
-                    break;
-                case 's':
-                    direction = 'Down';
-                    break;
-                case 'd':
-                    direction = 'Right';
-                    break;
-            }
-        };
-    </script>
-</body>
+            animate();
+        </script>
+    </body>
 </html>
