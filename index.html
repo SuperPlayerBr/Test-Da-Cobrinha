@@ -36,10 +36,12 @@
         var gameBoard = document.getElementById('game-board');
         var startButton = document.getElementById('start-button');
         var restartButton = document.getElementById('restart-button');
+        var aiButton = document.getElementById('ai-button');
         var gameOverText = document.getElementById('game-over');
         var appleCountText = document.getElementById('apple-count');
         var appleCount = 0;
         var gameInterval = null;
+        var aiActive = false;
 
         function randomApple() {
             return { top: Math.floor(Math.random() * 20) * 20, left: Math.floor(Math.random() * 20) * 20 };
@@ -63,58 +65,72 @@
             startButton.style.display = '';
         }
 
-        function gameLoop() {
-            var head = Object.assign({}, snake[0]); // Copia a cabeça
-            direction = nextDirection;
-            switch(direction) {
-                case 'Left':
-                    head.left -= 20;
-                    break;
-                case 'Up':
-                    head.top -= 20;
-                    break;
-                case 'Right':
-                    head.left += 20;
-                    break;
-                case 'Down':
-                    head.top += 20;
-                    break;
-            }
+       function gameLoop() {
+               var head = Object.assign({}, snake[0]); // Copia a cabeça
+    direction = nextDirection;
+    switch(direction) {
+        case 'Left':
+            head.left -= 20;
+            break;
+        case 'Up':
+            head.top -= 20;
+            break;
+        case 'Right':
+            head.left += 20;
+            break;
+        case 'Down':
+            head.top += 20;
+            break;
+    }
 
-            // Check for self-collision or wall collision
-            if (head.top < 0 || head.top === 400 || head.left < 0 || head.left === 400 || snake.some(dot => dot.top === head.top && dot.left === head.left)) {
-                clearInterval(gameInterval);
-                gameOverText.style.display = '';
-                restartButton.style.display = '';
-                return;
-            }
+    // Check for self-collision or wall collision
+    if (head.top < 0 || head.top === 400 || head.left < 0 || head.left === 400 || snake.some(dot => dot.top === head.top && dot.left === head.left)) {
+        clearInterval(gameInterval);
+        gameOverText.style.display = '';
+        restartButton.style.display = '';
+        return;
+    }
 
-            snake.unshift(head);
+    snake.unshift(head);
 
-            if (snake[0].top === apple.top && snake[0].left === apple.left) {
-                apple = randomApple();
-                appleCount++;
-                appleCountText.innerText = 'Maçãs: ' + appleCount;
-            } else {
-                snake.pop();
-            }
+    if (snake[0].top === apple.top && snake[0].left === apple.left) {
+        apple = randomApple();
+        appleCount++;
+        appleCountText.innerText = 'Maçãs: ' + appleCount;
+    } else {
+        snake.pop();
+    }
 
-            while (gameBoard.firstChild) {
-                gameBoard.removeChild(gameBoard.firstChild);
-            }
-            snake.forEach(function(dot) {
-                var dotElement = document.createElement('div');
-                dotElement.classList.add('dot');
-                dotElement.style.top = `${dot.top}px`;
-                dotElement.style.left = `${dot.left}px`;
-                gameBoard.appendChild(dotElement);
-            });
-            var appleElement = document.createElement('div');
-            appleElement.classList.add('apple');
-            appleElement.style.top = `${apple.top}px`;
-            appleElement.style.left = `${apple.left}px`;
-            gameBoard.appendChild(appleElement);
+    while (gameBoard.firstChild) {
+        gameBoard.removeChild(gameBoard.firstChild);
+    }
+    snake.forEach(function(dot) {
+        var dotElement = document.createElement('div');
+        dotElement.classList.add('dot');
+        dotElement.style.top = `${dot.top}px`;
+        dotElement.style.left = `${dot.left}px`;
+        gameBoard.appendChild(dotElement);
+    });
+    var appleElement = document.createElement('div');
+    appleElement.classList.add('apple');
+    appleElement.style.top = `${apple.top}px`;
+    appleElement.style.left = `${apple.left}px`;
+    gameBoard.appendChild(appleElement);
+
+    if (aiActive) {
+        var head = Object.assign({}, snake[0]);
+        if (head.top < apple.top) {
+            nextDirection = 'Down';
+        } else if (head.top > apple.top) {
+            nextDirection = 'Up';
+        } else if (head.left < apple.left) {
+            nextDirection = 'Right';
+        } else if (head.left > apple.left) {
+            nextDirection = 'Left';
         }
+    }
+}
+
 
         window.onkeydown = function(e) {
             switch(e.key) {
@@ -135,6 +151,10 @@
 
         startButton.onclick = startGame;
         restartButton.onclick = restartGame;
+        aiButton.onclick = function() {
+            aiActive = !aiActive;
+            aiButton.innerText = aiActive ? 'IA Desativa' : 'IA Ativa';
+        };
     </script>
 </body>
 </html>
