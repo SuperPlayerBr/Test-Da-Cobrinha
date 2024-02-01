@@ -118,79 +118,70 @@
     appleElement.style.top = `${apple.top}px`;
     appleElement.style.left = `${apple.left}px`;
     gameBoard.appendChild(appleElement);
-
-
-    if (aiActive) {
+if (aiActive) {
         var head = Object.assign({}, snake[0]);
-        var nextHead = Object.assign({}, head);
-
-        switch(nextDirection) {
-            case 'Left':
-                nextHead.left -= 20;
-                break;
-            case 'Up':
-                nextHead.top -= 20;
-                break;
-            case 'Right':
-                nextHead.left += 20;
-                break;
-            case 'Down':
-                nextHead.top += 20;
-                break;
+        var safeDirections = ['Left', 'Up', 'Right', 'Down'].filter(dir => {
+            var newHead = Object.assign({}, head);
+            switch(dir) {
+                case 'Left':
+                    newHead.left -= 20;
+                    break;
+                case 'Up':
+                    newHead.top -= 20;
+                    break;
+                case 'Right':
+                    newHead.left += 20;
+                    break;
+                case 'Down':
+                    newHead.top += 20;
+                    break;
+            }
+            return !(newHead.top < 0 || newHead.top === 400 || newHead.left < 0 || newHead.left === 400 || snake.some(dot => dot.top === newHead.top && dot.left === newHead.left));
+        });
+        if (safeDirections.length === 0) {
+            clearInterval(gameInterval);
+            gameOverText.style.display = '';
+            restartButton.style.display = '';
+            return;
         }
-
-        if (!(nextHead.top < 0 || nextHead.top === 400 || nextHead.left < 0 || nextHead.left === 400 || snake.some(dot => dot.top === nextHead.top && dot.left === nextHead.left))) {
-            direction = nextDirection;
+        if (head.top < apple.top && safeDirections.includes('Down')) {
+            nextDirection = 'Down';
+        } else if (head.top > apple.top && safeDirections.includes('Up')) {
+            nextDirection = 'Up';
+        } else if (head.left < apple.left && safeDirections.includes('Right')) {
+            nextDirection = 'Right';
+        } else if (head.left > apple.left && safeDirections.includes('Left')) {
+            nextDirection = 'Left';
+        } else {
+            nextDirection = safeDirections[0];
         }
     }
+}
 
-    window.onkeydown = function(e) {
-        var newDirection;
-        switch(e.key) {
-            case 'w':
-                newDirection = 'Up';
-                break;
-            case 'a':
-                newDirection = 'Left';
-                break;
-            case 's':
-                newDirection = 'Down';
-                break;
-            case 'd':
-                newDirection = 'Right';
-                break;
-        }
 
-        var head = Object.assign({}, snake[0]);
-        var nextHead = Object.assign({}, head);
+        window.onkeydown = function(e) {
+            switch(e.key) {
+                case 'w':
+                    if (direction !== 'Down') nextDirection = 'Up';
+                    break;
+                case 'a':
+                    if (direction !== 'Right') nextDirection = 'Left';
+                    break;
+                case 's':
+                    if (direction !== 'Up') nextDirection = 'Down';
+                    break;
+                case 'd':
+                    if (direction !== 'Left') nextDirection = 'Right';
+                    break;
+            }
+        };
 
-        switch(newDirection) {
-            case 'Left':
-                nextHead.left -= 20;
-                break;
-            case 'Up':
-                nextHead.top -= 20;
-                break;
-            case 'Right':
-                nextHead.left += 20;
-                break;
-            case 'Down':
-                nextHead.top += 20;
-                break;
-        }
-
-        if (!(nextHead.top < 0 || nextHead.top === 400 || nextHead.left < 0 || nextHead.left === 400 || snake.some(dot => dot.top === nextHead.top && dot.left === nextHead.left))) {
-            nextDirection = newDirection;
-        }
-    };
-
-    startButton.onclick = startGame;
-    restartButton.onclick = restartGame;
-    aiButton.onclick = function() {
-        aiActive = !aiActive;
-        aiButton.innerText = aiActive ? 'IA Desativa' : 'IA Ativa';
-    };
-</script>
+        startButton.onclick = startGame;
+        restartButton.onclick = restartGame;
+        aiButton.onclick = function() {
+            aiActive = !aiActive;
+            aiButton.innerText = aiActive ? 'IA Desativa' : 'IA Ativa';
+        };
+    </script>
 </body>
 </html>
-
